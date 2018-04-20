@@ -224,8 +224,6 @@ int main (int argc, const char* argv[]) {
   event.param = (void*) &local_sock;
   run_thread(event);
 
-  printf("\n\n\n\n\n GARBAGE");
-
   close(local_sock);
   return 0;
 }
