@@ -18,7 +18,7 @@
 #define DEFUALT_VERSION "HTTP/1.0"
 #define CONNECTION_CLOSE "Connection: close"
 #define INTERNAL_ERROR "505 INTERNAL ERROR\n"
-a
+
 #define MAXPENDING 5
 
 static int count;
