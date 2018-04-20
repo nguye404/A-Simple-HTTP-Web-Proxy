@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <sys/types.h>  // size_t, ssize_t
 #include <sys/socket.h> // socket funcs
@@ -17,7 +16,7 @@
 #define DEFAULT_PORT "80"
 #define DEFUALT_VERSION "HTTP/1.0"
 #define CONNECTION_CLOSE "Connection: close"
-#define INTERNAL_ERROR "505 INTERNAL ERROR\n"
+#define INTERNAL_ERROR "500 INTERNAL ERROR\n"
 
 #define MAXPENDING 5
 
@@ -70,11 +69,7 @@ process(void* param) {
     bp = bp + bytes_recv;
     }
 
-  printf("Message:%lu\n%s", pthread_self(),msg_recv);
-
   strtok(msg_recv, "\n");
-
-  printf("\n%i\n%s\n\n", count++, msg_recv);
 
   char* method = strtok(msg_recv, " ");
   if (!strcmp(method, "GET"))
@@ -151,15 +146,15 @@ process(void* param) {
     return;
   }
 
-  printf("Did it get here");
-
   char message[100];
-  strcpy(message, "GET");
-  strcat(message, " / ");
+  strcpy(message, method);
+  strcat(message, " /");
+  strcat(message, path);
+  strcat(message, " ");
   strcat(message, DEFUALT_VERSION);
   strcat(message, "\r\n");
   strcat(message, "Host: ");
-  strcat(message, "www.washington.com");
+  strcat(message, url);
   strcat(message, "\r\n");
   strcat(message, CONNECTION_CLOSE);
   strcat(message, "\r\n\r\n");
@@ -171,13 +166,10 @@ process(void* param) {
     return;
   }
 
-  printf("This got here");
-  printf("This was sent: %s\n", message);
-
   char http_msg_recv[1000000];
   bp = http_msg_recv;
   bytes_left = (sizeof(http_msg_recv) / sizeof(char));
- 
+
   while (bytes_left){
     bytes_recv = recv(web_server_sock, bp, bytes_left, 0);
     if (bytes_recv <= 0) {
@@ -187,7 +179,7 @@ process(void* param) {
     bp = bp + bytes_recv;
   }
 
-  printf("This was received: %s\n\n\n\n", http_msg_recv);
+  printf("\n%s\n", http_msg_recv);
 
   int http_msg_recv_length = sizeof(http_msg_recv);
   if (send_all(*telnet_sock, http_msg_recv, &http_msg_recv_length) < 0) {
@@ -231,6 +223,8 @@ int main (int argc, const char* argv[]) {
   event.fn = process;
   event.param = (void*) &local_sock;
   run_thread(event);
+
+  printf("\n\n\n\n\n GARBAGE");
 
   close(local_sock);
   return 0;
