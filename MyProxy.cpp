@@ -1,8 +1,4 @@
-/*
-  Scott Little
-  CPSC 4510
-  4/17/2018
-  Project 1 */
+
 #include <stdio.h>
 #include <sys/types.h>  // size_t, ssize_t
 #include <sys/socket.h> // socket funcs
@@ -22,7 +18,7 @@
 #define DEFUALT_VERSION "HTTP/1.0"
 #define CONNECTION_CLOSE "Connection: close"
 #define INTERNAL_ERROR "505 INTERNAL ERROR\n"
-
+a
 #define MAXPENDING 5
 
 static int count;
@@ -35,19 +31,21 @@ send_error(int& sock) {
 }
 
 static int
-send_all(int& sock, char *buf, int *len)
+send_all(int& sock, char *buffer, int *len)
 {
-  int total = 0; // how many bytes we've sent
-  int bytesleft = *len; // how many we have left to send
+  int total = 0;
+  int bytes_left = *len;
   int n;
   while(total < *len) {
-    n = send(sock, buf+total, bytesleft, 0);
-    if (n == -1) { break; }
+    n = send(sock, buffer + total, bytes_left, 0);
+    if (n == -1) {
+      break;
+    }
     total += n;
-    bytesleft -= n;
+    bytes_left -= n;
   }
-  *len = total; // return number actually sent here
-  return (n == -1) ? -1 : 0; // return -1 on failure, 0 on success
+  *len = total;
+  return (n == -1) ? -1 : 0;
 }
 
 static void
@@ -173,13 +171,6 @@ process(void* param) {
     return;
   }
 
-  // bytes_sent = send(web_server_sock, (void*) &message, strlen(message), 0);
-  // if (bytes_sent != strlen(msg_recv)) {
-  //   send_error(*telnet_sock);
-  //   close(web_server_sock);
-  //   return;
-  // }
-
   printf("This got here");
   printf("This was sent: %s\n", message);
 
@@ -205,29 +196,8 @@ process(void* param) {
     return;
   }
 
-  // bytes_sent = send(*telnet_sock, (void*) &http_msg_recv, strlen(http_msg_recv), 0);
-  // if (bytes_sent != strlen(http_msg_recv)) {
-  //   send_error(*telnet_sock);
-  //   close(web_server_sock);
-  //   return;
-  // }
-
   close(web_server_sock);
 }
-
-// static void*
-// thread_main(void *args)
-// {
-//   Thread_Args* thread_args = (struct Thread_Args*) args;
-//   int telnet_sock = thread_args->client_sock;
-//   delete thread_args;
-
-//   process(telnet_sock);
-
-//   close(telnet_sock);
-//   pthread_detach(pthread_self());
-//   return NULL;
-// }
 
 int main (int argc, const char* argv[]) {
    if (argc != 2) {
@@ -261,31 +231,6 @@ int main (int argc, const char* argv[]) {
   event.fn = process;
   event.param = (void*) &local_sock;
   run_thread(event);
-
-  // int telnet_sock;
-  // struct sockaddr_in client_addr;
-  // socklen_t client_addr_len = sizeof(client_addr);
-
-  // while (true){
-  //   if ((telnet_sock = accept(local_sock, (struct sockaddr*) &client_addr, &client_addr_len)) < 0) {
-  //     perror("accept");
-  //     exit(-1);
-  //   }
-
-  //   Thread_Args* thread_args = new Thread_Args;
-  //   // Create and initialize argument struct
-  //   thread_args = new Thread_Args;
-  //   thread_args->client_sock = telnet_sock;
-  //   // Create client thread
-  //   pthread_t threadID;
-  //   int status = pthread_create(&threadID, NULL, thread_main, (void*) thread_args);
-  //   if (status != 0){
-  //     perror("Error with pthread_create");
-  //     close(local_sock);
-  //     close(telnet_sock);
-  //     exit(-1);
-  //   }
-  // }
 
   close(local_sock);
   return 0;
