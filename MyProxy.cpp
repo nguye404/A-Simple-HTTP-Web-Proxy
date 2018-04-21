@@ -12,6 +12,9 @@
 #include <pthread.h>
 #include "multi_thread.h"
 
+#include <vector>
+#include <sstream>
+
 #define DEFAULT_METHOD "GET"
 #define DEFAULT_PORT "80"
 #define DEFUALT_VERSION "HTTP/1.0"
@@ -19,6 +22,8 @@
 #define INTERNAL_ERROR "500 INTERNAL ERROR\n"
 
 #define MAXPENDING 5
+
+using namespace std;
 
 static int count;
 
@@ -47,8 +52,8 @@ send_all(int& sock, char *buffer, int *len)
   return (n == -1) ? -1 : 0;
 }
 
-static void
-process(void* param) {
+static void process(void* param) 
+{
   char msg_recv[2000];
   char* bp = msg_recv;
   size_t bytes_left = sizeof(msg_recv) / sizeof(char);
@@ -56,139 +61,164 @@ process(void* param) {
 
   int* telnet_sock = (int*) param;
 
-  while (bytes_left) {
-    bytes_recv = recv(*telnet_sock, bp, bytes_left, 0);
-    if (bytes_left <= 0) {
-      send_error(*telnet_sock);
-      return;
-    }
-    if (strcmp(bp, "\n"))
-      bytes_left = 0;
-    else
-      bytes_left = bytes_left - bytes_recv;
-    bp = bp + bytes_recv;
-    }
+	while (bytes_left) 
+	{
+		bytes_recv = recv(*telnet_sock, bp, bytes_left, 0);
+		if (bytes_left <= 0) {
+		  send_error(*telnet_sock);
+		  return;
+		}
+		if (strcmp(bp, "\n"))
+		  bytes_left = 0;
+		else
+		  bytes_left = bytes_left - bytes_recv;
+		bp = bp + bytes_recv;
+		}
 
-  strtok(msg_recv, "\n");
+		strtok(msg_recv, "\n");
+	  
+		string command = string(msg_recv);
+		string buf; // Have a buffer string
+		stringstream ss(command); // Insert the string into a stream
+		vector<string> tokens; // Create vector to hold our words
+	
+		while (ss >> buf)
+		{
+			tokens.push_back(buf);
+		}
+		
+		// if (tokens[0] != "GET")
+		// {
+			// sendString(clientSock, errorMsg);
+		// }
+		// else if (tokens[2] != "HTTP/1.0")
+		// {
+				// sendString(clientSock, errorMsg);
+		// }
+		// else
+		// {
+			string url = tokens[1];
+			// string strReceive = GET(httpUrl);
+			// sendString(clientSock, strReceive);
+		// }
+	
+		size_t found = url.find_first_of(":");
+		string host;
+		string port;
+		string path;
+	
+		//try
+		//{
+			string protocol = url.substr(0,found); 
 
-  char* method = strtok(msg_recv, " ");
-  if (!strcmp(method, "GET"))
-    strcpy(method, "GET");
+			//url_new is the url excluding the http part
+			string url_new = url.substr(found + 3); 
+			size_t found1 = url_new.find_first_of(":");
+			int convertFound1 = static_cast<int>(found1);
+			if (convertFound1 == -1)
+				found1 = url_new.find_first_of("/");
+			host = url_new.substr(0,found1);
 
-  char temp_url[20];
-  char* url, * path, * temp_end_port, * temp_port;
-  char port[6];
-  if ((url = strtok(NULL, "w")) == NULL) {
-    send_error(*telnet_sock);
-    return;
-  }
-  url = strtok(NULL, "/ :");
-  if ((path = strtok(NULL, ":")) == NULL) {
-    send_error(*telnet_sock);
-    return;
-  }
-  if ((temp_end_port = strtok(NULL, ":")) == NULL) {
-    if ((temp_end_port = strtok(temp_end_port, " ")) == NULL)
-      ;
-  }
-  if ((temp_port = strtok(path, ":")) == NULL) {
-    send_error(*telnet_sock);
-    return;
-  }
-  if (path[0] == 'H' || isdigit(path[0])) {
-    if (atoi(path) > 1) {
-      strcpy(port, path);
-      temp_port = port;
-    }
-    strcpy(path, "/");
-  }
-  strcpy(temp_url, "w");
-  strcat(temp_url, url);
-  url = temp_url;
+			// get the port number and path
+			size_t found2 = url_new.find_first_of("/");
 
-  if (temp_end_port != NULL && atoi(temp_end_port) > 1)
-    strcpy(port, temp_end_port);
-  else if (temp_port == nullptr)
-    strcpy(port, DEFAULT_PORT);
-  else if (!(atoi(temp_port)))
-    strcpy(port, DEFAULT_PORT);
+			if (convertFound1 == -1)
+				port = "80";
+			else
+				port = url_new.substr(found1 + 1, found2 - found1 - 1);
+			path = url_new.substr(found2);
+		//}
+		//catch (const std::out_of_range& oor) 
+		//{
+			//return errorMsg;
+		//}
+	
+		char *cstrHost = new char[host.length() + 1];
+		strcpy(cstrHost, host.c_str());
+		char *cstrPort = new char[port.length() + 1];
+		strcpy(cstrPort, port.c_str());
+	
 
-  struct addrinfo hints, *serv_info, *p;
-  int result, web_server_sock = 0;
+		struct addrinfo hints, *serv_info, *p;
+		int result, web_server_sock = 0;
 
-  memset(&hints, 0, sizeof(hints));
-  hints.ai_flags = AI_CANONNAME; // returns server name
-  hints.ai_family = AF_UNSPEC;
-  hints.ai_socktype = SOCK_STREAM; // TCP
+		memset(&hints, 0, sizeof(hints));
+		hints.ai_flags = AI_CANONNAME; // returns server name
+		hints.ai_family = AF_UNSPEC;
+		hints.ai_socktype = SOCK_STREAM; // TCP
 
-  if ((result = getaddrinfo(url, port, &hints, &serv_info)) != 0) {
-    send_error(*telnet_sock);
-    return;
-  }
+		if ((result = getaddrinfo(cstrHost, cstrPort, &hints, &serv_info)) != 0) 
+		{
+			send_error(*telnet_sock);
+			return;
+		}
+  
+		delete [] cstrHost;
+		delete [] cstrPort;
 
-  for (p = serv_info; p != NULL; p = p->ai_next) {
-    if ((web_server_sock = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1) {
-      continue;
-  }
+		for (p = serv_info; p != NULL; p = p->ai_next) 
+		{
+			if ((web_server_sock = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1) {
+				continue;
+		}
 
-    if (connect(web_server_sock, p->ai_addr, p->ai_addrlen) == -1) {
-      continue;
-    }
+		if (connect(web_server_sock, p->ai_addr, p->ai_addrlen) == -1) 
+		{
+		  continue;
+		}
 
-    break;
-  }
+		break;
+	}
 
-  freeaddrinfo(serv_info);
+	freeaddrinfo(serv_info);
 
-  if (web_server_sock <= 0) {
-    send_error(*telnet_sock);
-    close(web_server_sock);
-    return;
-  }
+	if (web_server_sock <= 0) 
+	{
+		send_error(*telnet_sock);
+		close(web_server_sock);
+		return;
+	}
 
-  char message[100];
-  strcpy(message, method);
-  strcat(message, " /");
-  strcat(message, path);
-  strcat(message, " ");
-  strcat(message, DEFUALT_VERSION);
-  strcat(message, "\r\n");
-  strcat(message, "Host: ");
-  strcat(message, url);
-  strcat(message, "\r\n");
-  strcat(message, CONNECTION_CLOSE);
-  strcat(message, "\r\n\r\n");
+	string strHeader = "GET " + path + " HTTP/1.0\r\nHost: " + string(host) 
+						+ "\r\nConnection: close\r\n\r\n";
+    
+	char *header  = new char[strHeader.length() + 1];
+	strcpy(header, strHeader.c_str());
 
-  int message_length = sizeof(message);
-  if (send_all(web_server_sock, message, &message_length) < 0) {
-    send_error(*telnet_sock);
-    close(web_server_sock);
-    return;
-  }
+	if (send(web_server_sock, header, strlen(header), 0) < 0)
+	{	delete [] header;
+		send_error(*telnet_sock);
+		close(web_server_sock);
+		return;
+		
+	}
+	delete [] header;
 
-  char http_msg_recv[1000000];
-  bp = http_msg_recv;
-  bytes_left = (sizeof(http_msg_recv) / sizeof(char));
+	char http_msg_recv[1000000];
+	bp = http_msg_recv;
+	bytes_left = (sizeof(http_msg_recv) / sizeof(char));
 
-  while (bytes_left){
-    bytes_recv = recv(web_server_sock, bp, bytes_left, 0);
-    if (bytes_recv <= 0) {
-      break;
-    }
-    bytes_left = bytes_left - bytes_recv;
-    bp = bp + bytes_recv;
-  }
+	while (bytes_left)
+	{
+		bytes_recv = recv(web_server_sock, bp, bytes_left, 0);
+		if (bytes_recv <= 0) 
+		{
+			break;
+		}
+		bytes_left = bytes_left - bytes_recv;
+		bp = bp + bytes_recv;
+	}
 
-  printf("\n%s\n", http_msg_recv);
+	printf("\n%s\n", http_msg_recv);
 
-  int http_msg_recv_length = sizeof(http_msg_recv);
-  if (send_all(*telnet_sock, http_msg_recv, &http_msg_recv_length) < 0) {
-    send_error(*telnet_sock);
-    close(web_server_sock);
-    return;
-  }
-
-  close(web_server_sock);
+	int http_msg_recv_length = sizeof(http_msg_recv);
+	if (send_all(*telnet_sock, http_msg_recv, &http_msg_recv_length) < 0) 
+	{
+		send_error(*telnet_sock);
+		close(web_server_sock);
+		return;
+	}
+	close(web_server_sock);
 }
 
 int main (int argc, const char* argv[]) {
