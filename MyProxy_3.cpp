@@ -92,11 +92,11 @@ void processClient(int telnet_sock)
 
 	// b) receive the request	
 		
-	int bytesLeft = 50; // bytes to read
+	int bytesLeft = 1024; // bytes to read
 	char buffer[bytesLeft];    // initially empty
 	char *bp = buffer;
 		  
-	while (command.find("\n") == string::npos && bytesLeft) 
+	while (command.find("\r\n\r\n") == string::npos && bytesLeft) 
 	{
 		int bytesRecv = recv(telnet_sock, bp, bytesLeft, 0);
 		bytesLeft = bytesLeft - bytesRecv;
@@ -134,154 +134,158 @@ void processClient(int telnet_sock)
 	else if (tokens[2] != "HTTP/1.0")
 	{
 			// sendString(clientSock, errorMsg);
+			return;
 	}
 	else
 	{
 		url = tokens[1];
 		// string strReceive = GET(httpUrl);
 		// sendString(clientSock, strReceive);
-	}
+		size_t found = url.find_first_of(":");
+		string host;
+		string port;
+		string path;
 
-	size_t found = url.find_first_of(":");
-	string host;
-	string port;
-	string path;
-
-	try
-	{
-		string protocol = url.substr(0,found); 
-
-		//url_new is the url excluding the http part
-		string url_new = url.substr(found + 3); 
-		size_t found1 = url_new.find_first_of(":");
-		int convertFound1 = static_cast<int>(found1);
-		if (convertFound1 == -1)
-			found1 = url_new.find_first_of("/");
-		host = url_new.substr(0,found1);
-
-		// get the port number and path
-		size_t found2 = url_new.find_first_of("/");
-
-		if (convertFound1 == -1)
-			port = "80";
-		else
-			port = url_new.substr(found1 + 1, found2 - found1 - 1);
-		path = url_new.substr(found2);
-	}
-	catch (const std::out_of_range& oor) 
-	{
-		//return INTERNAL_ERROR;
-		return;
-	}
-	
-	char *cstrHost = new char[host.length() + 1];
-	strcpy(cstrHost, host.c_str());
-	char *cstrPort = new char[port.length() + 1];
-	strcpy(cstrPort, port.c_str());
-
-
-	struct addrinfo hints, *serv_info, *p;
-	int result, web_server_sock = 0;
-
-	memset(&hints, 0, sizeof(hints));
-	hints.ai_flags = AI_CANONNAME; // returns server name
-	hints.ai_family = AF_UNSPEC;
-	hints.ai_socktype = SOCK_STREAM; // TCP
-
-	
-	cout << "_______________________________" << *cstrHost << endl;
-	cout << "_____________**________________" << *cstrPort << endl;
-	if ((result = getaddrinfo(cstrHost, cstrPort, &hints, &serv_info)) != 0) 
-	{
-		send_error(telnet_sock);
-		return;
-	}
-
-	delete [] cstrHost;
-	delete [] cstrPort;
-
-	for (p = serv_info; p != NULL; p = p->ai_next) 
-	{
-		if ((web_server_sock = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1) 
+		try
 		{
-			continue;
-		}
+			string protocol = url.substr(0,found); 
 
-		if (connect(web_server_sock, p->ai_addr, p->ai_addrlen) == -1) 
+			//url_new is the url excluding the http part
+			string url_new = url.substr(found + 3); 
+			size_t found1 = url_new.find_first_of(":");
+			int convertFound1 = static_cast<int>(found1);
+			if (convertFound1 == -1)
+				found1 = url_new.find_first_of("/");
+			host = url_new.substr(0,found1);
+
+			// get the port number and path
+			size_t found2 = url_new.find_first_of("/");
+
+			if (convertFound1 == -1)
+				port = "80";
+			else
+				port = url_new.substr(found1 + 1, found2 - found1 - 1);
+			path = url_new.substr(found2);
+		}
+		catch (const std::out_of_range& oor) 
 		{
-		  continue;
+			//return INTERNAL_ERROR;
+			return;
 		}
-
-		break;
-	}
-
-	freeaddrinfo(serv_info);
-
-	if (web_server_sock <= 0) 
-	{
-		send_error(telnet_sock);
-		close(web_server_sock);
-		return;
-	}
-
-	string strHeader = "GET " + path + " HTTP/1.0\r\nHost: " + string(host) 
-						+ "\r\nConnection: close\r\n\r\n";
-    
-	char *header  = new char[strHeader.length() + 1];
-	strcpy(header, strHeader.c_str());
-
-	if (send(web_server_sock, header, strlen(header), 0) < 0)
-	{	delete [] header;
-		send_error(telnet_sock);
-		close(web_server_sock);
-		return;
 		
-	}
-	delete [] header;
+		char *cstrHost = new char[host.length() + 1];
+		strcpy(cstrHost, host.c_str());
+		char *cstrPort = new char[port.length() + 1];
+		strcpy(cstrPort, port.c_str());
 
-	char http_msg_recv[1000000];
-	bp = http_msg_recv;
-	bytes_left = (sizeof(http_msg_recv) / sizeof(char));
 
-	while (bytes_left)
-	{
-		bytes_recv = recv(web_server_sock, bp, bytes_left, 0);
-		if (bytes_recv <= 0) 
+		struct addrinfo hints, *serv_info, *p;
+		int result, web_server_sock = 0;
+
+		memset(&hints, 0, sizeof(hints));
+		hints.ai_flags = AI_CANONNAME; // returns server name
+		hints.ai_family = AF_UNSPEC;
+		hints.ai_socktype = SOCK_STREAM; // TCP
+
+		
+		cout << "_______________________________" << *cstrHost << endl;
+		cout << "_____________**________________" << *cstrPort << endl;
+		if ((result = getaddrinfo(cstrHost, cstrPort, &hints, &serv_info)) != 0) 
 		{
+			send_error(telnet_sock);
+			return;
+		}
+
+		delete [] cstrHost;
+		delete [] cstrPort;
+
+		for (p = serv_info; p != NULL; p = p->ai_next) 
+		{
+			if ((web_server_sock = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1) 
+			{
+				continue;
+			}
+
+			if (connect(web_server_sock, p->ai_addr, p->ai_addrlen) == -1) 
+			{
+			  continue;
+			}
+
 			break;
 		}
-		bytes_left = bytes_left - bytes_recv;
-		bp = bp + bytes_recv;
-	}
-	
-	
-	// int byteRecv;
-	// char buffer2[BUFFER_LENGTH];
-	
-	// while ((byteRecv = recv(web_server_sock, buffer2, BUFFER_LENGTH, 0)) > 0)
-	// {
-		// send_chunk(telnet_sock, buffer2, byteRecv);
-		
-		// printf("\n%s\n", buffer2);
-		
-		// // update the size of the buffer
-		// memset(buffer2, 0, sizeof(buffer2));
-	// }
-	
 
-	printf("\n%s\n", http_msg_recv);
-	printf("***********after printing the response****************\n");
-	int http_msg_recv_length = sizeof(http_msg_recv);
-	if (send_all(telnet_sock, http_msg_recv, strlen(http_msg_recv)) < 0) 
-	{
-		send_error(telnet_sock);
+		freeaddrinfo(serv_info);
+
+		if (web_server_sock <= 0) 
+		{
+			send_error(telnet_sock);
+			close(web_server_sock);
+			return;
+		}
+
+		string strHeader = "GET " + path + " HTTP/1.0\r\nHost: " + string(host) 
+							+ "\r\nConnection: close\r\n\r\n";
+		
+		char *header  = new char[strHeader.length() + 1];
+		strcpy(header, strHeader.c_str());
+
+		if (send(web_server_sock, header, strlen(header), 0) < 0)
+		{	delete [] header;
+			send_error(telnet_sock);
+			close(web_server_sock);
+			return;
+			
+		}
+		delete [] header;
+
+		char http_msg_recv[1000000];
+		bp = http_msg_recv;
+		bytes_left = (sizeof(http_msg_recv) / sizeof(char));
+
+		while (bytes_left)
+		{
+			bytes_recv = recv(web_server_sock, bp, bytes_left, 0);
+			if (bytes_recv <= 0) 
+			{
+				break;
+			}
+			bytes_left = bytes_left - bytes_recv;
+			bp = bp + bytes_recv;
+		}
+		
+		
+		// int byteRecv;
+		// char buffer2[BUFFER_LENGTH];
+		
+		// while ((byteRecv = recv(web_server_sock, buffer2, BUFFER_LENGTH, 0)) > 0)
+		// {
+			// send_chunk(telnet_sock, buffer2, byteRecv);
+			
+			// printf("\n%s\n", buffer2);
+			
+			// // update the size of the buffer
+			// memset(buffer2, 0, sizeof(buffer2));
+		// }
+		
+
+		printf("\n%s\n", http_msg_recv);
+		printf("***********after printing the response****************\n");
+		int http_msg_recv_length = sizeof(http_msg_recv);
+		if (send_all(telnet_sock, http_msg_recv, strlen(http_msg_recv)) < 0) 
+		{
+			send_error(telnet_sock);
+			cout << "send error______________\n";
+			close(web_server_sock);
+			return;
+		}
+		printf("***********after sending the response****************\n");
 		close(web_server_sock);
+		printf("***********close web server sock *************\n");
+		
 		return;
 	}
-	printf("***********after sending the response****************\n");
-	close(web_server_sock);
-	printf("***********close web server sock *************\n");
-	return;
+
+	
 }
 
 
@@ -347,7 +351,7 @@ int main (int argc, const char* argv[]) {
 		socklen_t addrLen = sizeof(clientAddr);
 		int clientSock = accept(local_sock, (struct sockaddr *) &clientAddr, &addrLen);
 		if (clientSock < 0)
-		  exit(-1);
+			exit(-1);
 	  
 		struct ThreadArgs* threadArgs = new ThreadArgs;
 		threadArgs -> clientSock = clientSock; //one thread at a time
