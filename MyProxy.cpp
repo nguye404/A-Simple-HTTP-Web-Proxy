@@ -95,14 +95,8 @@ void producer_consumer(int client_sock, int http_server_sock)
 void processClient(int telnet_sock)
 {
 	string command;
-	size_t bytes_left = sizeof(command) / sizeof(string);
-	size_t bytes_recv;
 	string url;
 
-	
-
-	// b) receive the request	
-		
 	int bytesLeft = 1024; // bytes to read
 	char buffer[bytesLeft];    // initially empty
 	char *bp = buffer;
@@ -116,8 +110,7 @@ void processClient(int telnet_sock)
 	}
 
 	command.erase(std::remove(command.begin(), command.end(), '\n'), command.end());
-  
-	//string command = string(msg_recv);
+
 	string buf; // Have a buffer string
 	stringstream ss(command); // Insert the string into a stream
 	vector<string> tokens; // Create vector to hold our words
@@ -127,25 +120,20 @@ void processClient(int telnet_sock)
 		tokens.push_back(buf);
 	}
 	
-	if  (tokens.size() < 3)// SEG FAULT SOLUTION
+	if  (tokens.size() < 3)
+	{
+		send_chunk(telnet_sock, INTERNAL_ERROR, strlen(INTERNAL_ERROR));
 		return;
+	}
 	else if (tokens[0] != "GET")
 	{
-		// sendString(clientSock, errorMsg);
-		char http_msg_recv[1000000];
-		int http_msg_recv_length = sizeof(http_msg_recv);
-		if (send_all(telnet_sock, http_msg_recv, http_msg_recv_length) < 0) 
-		{
-			send_error(telnet_sock);
-			//close(web_server_sock);
-			return;
-		}
-		//close(web_server_sock);
+		send_chunk(telnet_sock, INTERNAL_ERROR, strlen(INTERNAL_ERROR));
+		return;
 	}
 	else if (tokens[2] != "HTTP/1.0")
 	{
-			// sendString(clientSock, errorMsg);
-			return;
+		send_chunk(telnet_sock, INTERNAL_ERROR, strlen(INTERNAL_ERROR));
+		return;
 	}
 	else
 	{
@@ -180,7 +168,7 @@ void processClient(int telnet_sock)
 		}
 		catch (const std::out_of_range& oor) 
 		{
-			//return INTERNAL_ERROR;
+			send_chunk(telnet_sock, INTERNAL_ERROR, strlen(INTERNAL_ERROR));
 			return;
 		}
 		
@@ -198,9 +186,6 @@ void processClient(int telnet_sock)
 		hints.ai_family = AF_UNSPEC;
 		hints.ai_socktype = SOCK_STREAM; // TCP
 
-		
-		cout << "_______________________________" << *cstrHost << endl;
-		cout << "_____________**________________" << *cstrPort << endl;
 		if ((result = getaddrinfo(cstrHost, cstrPort, &hints, &serv_info)) != 0) 
 		{
 			send_error(telnet_sock);
