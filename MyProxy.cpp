@@ -24,6 +24,7 @@
 
 #define MAXPENDING 5
 const int BUFFER_LENGTH = 2048; 
+const int SMALL_BUFFER_LENGTH = 1024;
 
 using namespace std;
 
@@ -39,27 +40,6 @@ send_error(int sock)
 	size_t bytes_sent = send(sock, (void*) &INTERNAL_ERROR, strlen(INTERNAL_ERROR), 0);
 	if (bytes_sent != strlen(INTERNAL_ERROR))
 		perror("Error with send");
-}
-
-
-static int
-send_all(int sock, char *buffer, int len)
-{
-	int total = 0;
-	int bytes_left = len;
-	int n;
-	while(total < len) 
-	{
-		n = send(sock, buffer + total, bytes_left, 0);
-		if (n == -1) 
-		{
-			break;
-		}
-		total += n;
-		bytes_left -= n;
-	}
-	//*len = total;
-	return (n == -1) ? -1 : 0;
 }
 
 
@@ -97,7 +77,7 @@ void processClient(int telnet_sock)
 	string command;
 	string url;
 
-	int bytesLeft = 1024; // bytes to read
+	int bytesLeft = SMALL_BUFFER_LENGTH; // bytes to read
 	char buffer[bytesLeft];    // initially empty
 	char *bp = buffer;
 		  
@@ -185,6 +165,9 @@ void processClient(int telnet_sock)
 		hints.ai_flags = AI_CANONNAME; // returns server name
 		hints.ai_family = AF_UNSPEC;
 		hints.ai_socktype = SOCK_STREAM; // TCP
+		
+		printf("ctrsHost: %s\n", cstrHost);
+		printf("cstrPort: %s\n", cstrPort);
 
 		if ((result = getaddrinfo(cstrHost, cstrPort, &hints, &serv_info)) != 0) 
 		{
@@ -236,8 +219,10 @@ void processClient(int telnet_sock)
 
 		producer_consumer(telnet_sock, web_server_sock);
 		printf("***********after sending the response****************\n");
+		
+		char end_of_head[SMALL_BUFFER_LENGTH] = "\r\n";
+		write(telnet_sock, end_of_head, strlen(end_of_head));
 		close(web_server_sock);
-		printf("***********close web server sock *************\n");
 		
 		return;
 	}
@@ -255,20 +240,22 @@ void* processThread(void *args)
 	
 	//communicate with client
 	processClient(clientSock);
+	
 	cout << "done______________________*******************\n";
+	
 
 	//reclaim resources before finnishing
 	pthread_detach(pthread_self());
   
   
-	// 9. Close the connection with the client.
+	//Close the connection with the client.
 	close (clientSock);
 	return NULL;
 }
 
 
 int main (int argc, const char* argv[]) {
-   if (argc != 2) {
+	if (argc != 2) {
     errno = EINVAL;
     perror("Command line");
     exit(-1);
