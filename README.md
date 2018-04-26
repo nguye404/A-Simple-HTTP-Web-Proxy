@@ -1,7 +1,4 @@
-Team members:
-Hang Nguyen
-Scott Little
-Jason Esparza
+Team members: Hang Nguyen, Scott Little and Jason Esparza
 
 
 Contributions:
