@@ -4,7 +4,7 @@ Team members: Hang Nguyen, Scott Little and Jason Esparza
 Contributions:
 - Hang Nguyen: parse the requested URL, producer-consumer code, a little bit of threading
 - Scott Little:
-- Jason Esparza:
+- Jason Esparza: memory management, debugging, socket management, and refactoring
 
 
 The design decision:
