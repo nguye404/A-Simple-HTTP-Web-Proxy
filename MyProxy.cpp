@@ -138,7 +138,7 @@ void* processThread(void *args)
 		try
 		{
 			string protocol = url.substr(0,found);
-			if (protocol != "http")
+			if (protocol != "http")	// check if the protocol isn't https
 			{
 				send_chunk(telnet_sock, INTERNAL_ERROR, strlen(INTERNAL_ERROR));
 				close (telnet_sock);
