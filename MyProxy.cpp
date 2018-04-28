@@ -25,15 +25,13 @@
 #define DEFUALT_VERSION "HTTP/1.0"
 #define CONNECTION_CLOSE "Connection: close"
 #define INTERNAL_ERROR "500 INTERNAL ERROR\n"
-
 #define BACKLOG 30
 const int BUFFER_LENGTH = 2048;
 const int MAX_MESSAGE = 200000;
-
-using namespace std;
-
 sem_t maxConcurrent;
 int MAX_CONCURRENT_USERS = 30;
+
+using namespace std;
 
 struct ThreadArgs
 {

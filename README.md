@@ -16,6 +16,8 @@ We decided to use semaphores in order to ensure concurrency of a maximum of 30 u
 
 
 Strengths:
-
+- multi-threading proxy with synchronization
+- sufficient memory management
 
 Weaknesses:
+- We set a big size for the size of the receiving request buffer so that it can receive all requests from the client
