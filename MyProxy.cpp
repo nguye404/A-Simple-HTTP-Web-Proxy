@@ -1,4 +1,4 @@
-//CPSC 4510
+//CPSC 4510, Spring 2018, Seattle University
 //Homework Assignment #3
 //Team Members: Jason Esparza, Hang Nguyen, Scott Little
 
@@ -58,6 +58,9 @@ int send_chunk(int client_sock, const char* buffer, int buffer_length)
 }
 
 
+// It receives the chunk of the response from http server and sends that 
+// chunk to the client right away.  It doesn't wait until the whole response
+// is receive to send to the client
 void producer_consumer(int client_sock, int http_server_sock)
 {
 	int bytes_recv;
@@ -102,7 +105,9 @@ void* processThread(void *args)
 	{
 		tokens.push_back(buf);
 	}
-
+	
+	// token size less than 3 means that there are only 2 combination between
+	// 'GET', host and 'HTTP/1.0' or the request is invalid
 	if  (tokens.size() < 3)
 	{
 		send_chunk(telnet_sock, INTERNAL_ERROR, strlen(INTERNAL_ERROR));
@@ -192,6 +197,7 @@ void* processThread(void *args)
 		delete [] cstrHost;
 		delete [] cstrPort;
 
+		// loop through all the results and bind to the first 
 		for (p = serv_info; p != NULL; p = p->ai_next)
 		{
 			if ((web_server_sock = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1)
@@ -205,7 +211,7 @@ void* processThread(void *args)
 			}
 			break;
 		}		
-		freeaddrinfo(serv_info);
+		freeaddrinfo(serv_info);	// No longer need list of addresses
 
 		if (web_server_sock <= 0)
 		{
