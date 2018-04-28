@@ -28,6 +28,7 @@
 
 #define BACKLOG 30
 const int BUFFER_LENGTH = 2048;
+const int MAX_MESSAGE = 200000;
 
 using namespace std;
 
@@ -60,10 +61,11 @@ int send_chunk(int client_sock, const char* buffer, int buffer_length)
 void producer_consumer(int client_sock, int http_server_sock)
 {
 	int bytes_recv;
-
 	char* buffer = (char*)calloc(BUFFER_LENGTH, 1);
+	
 	while((bytes_recv = recv(http_server_sock, buffer, BUFFER_LENGTH, 0)) > 0)
 	{
+		// send the chunk just received from the http server to the client
 		send_chunk(client_sock, buffer, bytes_recv);
 	}
 	free(buffer);
@@ -79,7 +81,7 @@ void* processThread(void *args)
 	string command = "";
     string url = "";
 
-	int bytesLeft = 200000;
+	int bytesLeft = MAX_MESSAGE;
 	char* buffer = (char*)calloc(bytesLeft, 1);
 
 	while (command.find("\r\n\r\n") == string::npos && bytesLeft)
@@ -91,10 +93,10 @@ void* processThread(void *args)
 	free(buffer);
 
 	command.erase(std::remove(command.begin(), command.end(), '\n'), command.end());
-
-	string buf;
-	stringstream ss(command);
-	vector<string> tokens;
+	
+	string buf;	// Have a buffer string
+	stringstream ss(command);	// Insert the string into a stream
+	vector<string> tokens;	// Create vector to hold our words
 
 	while (ss >> buf)
 	{
@@ -161,16 +163,15 @@ void* processThread(void *args)
 		}
 		catch (const std::out_of_range& oor)
 		{
-		send_chunk(telnet_sock, INTERNAL_ERROR, strlen(INTERNAL_ERROR));
-		close (telnet_sock);
-		sem_post(&maxConcurrent);
+			send_chunk(telnet_sock, INTERNAL_ERROR, strlen(INTERNAL_ERROR));
+			close (telnet_sock);
+			sem_post(&maxConcurrent);
 		}
 
 		char *cstrHost = new char[host.length() + 1];
 		strcpy(cstrHost, host.c_str());
 		char *cstrPort = new char[port.length() + 1];
 		strcpy(cstrPort, port.c_str());
-
 
 		struct addrinfo hints, *serv_info, *p;
 		int result, web_server_sock = 0;
@@ -179,7 +180,6 @@ void* processThread(void *args)
 		hints.ai_flags = AI_CANONNAME;
 		hints.ai_family = AF_UNSPEC;
 		hints.ai_socktype = SOCK_STREAM;
-
 
 		if ((result = getaddrinfo(cstrHost, cstrPort, &hints, &serv_info)) != 0)
 		{
@@ -209,11 +209,11 @@ void* processThread(void *args)
 
 		if (web_server_sock <= 0)
 		{
-		  send_chunk(telnet_sock, INTERNAL_ERROR, strlen(INTERNAL_ERROR));
-		  close(web_server_sock);
-		  close (telnet_sock);
-		  sem_post(&maxConcurrent);
-		  return NULL;
+			send_chunk(telnet_sock, INTERNAL_ERROR, strlen(INTERNAL_ERROR));
+			close(web_server_sock);
+			close (telnet_sock);
+			sem_post(&maxConcurrent);
+			return NULL;
 		}
 
 		string strHeader = "GET " + path + " HTTP/1.0\r\nHost: " + string(host)
@@ -224,11 +224,11 @@ void* processThread(void *args)
 
 		if (send_chunk(web_server_sock, header, strlen(header)) < 0)
 		{	delete [] header;
-		  send_chunk(telnet_sock, INTERNAL_ERROR, strlen(INTERNAL_ERROR));
-		  close(web_server_sock);
-		  close (telnet_sock);
-		  sem_post(&maxConcurrent);
-		  return NULL;
+			send_chunk(telnet_sock, INTERNAL_ERROR, strlen(INTERNAL_ERROR));
+			close(web_server_sock);
+			close (telnet_sock);
+			sem_post(&maxConcurrent);
+			return NULL;
 		}
 		delete [] header;
 
@@ -284,7 +284,7 @@ int main (int argc, const char* argv[])
 
 		if (clientSock < 0)
 		{
-		  exit(-1);
+			exit(-1);
 		}
 		else
 		{
