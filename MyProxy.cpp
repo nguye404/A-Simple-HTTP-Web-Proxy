@@ -1,4 +1,3 @@
-//CPSC 4510, Spring 2018, Seattle University
 //Homework Assignment #3
 //Team Members: Jason Esparza, Hang Nguyen, Scott Little
 
