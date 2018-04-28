@@ -3,7 +3,7 @@
 
 **Contributions:**
 - Hang Nguyen: parse the user request input, producer-consumer code, synchronization and a little bit of threading
-- Scott Little:
+- Scott Little: testing/debugging, threading, logic, code management, code maintenance
 - Jason Esparza: memory management, debugging, socket management, and refactoring
 
 Each group member contributed equally as our team met regularly to discuss, contribute, and debug accordingly.
