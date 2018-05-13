@@ -2,9 +2,11 @@
 This project aims to implement a simple web proxy using HTTP 1.0. It only requires implementing GET
 method.
 
+
 **2. Background**
 
 **HTTP**
+
 The Hypertext Transfer Protocol or (HTTP) is the protocol used for communication on the web. That is, it
 is the protocol which defines how your web browser requests resources from a web server and how the
 server responds. For simplicity, in this project we will be dealing only with version 1.0 of the HTTP protocol,
@@ -13,19 +15,28 @@ instructions should be self-contained.
 HTTP communications happen in the form of transactions. A transaction consists of a client sending a
 request to a server and then reading the response. Request and response messages share a common basic
 format:
+
 • An initial line (a request or response line, as defined below)
+
 • Zero or more header lines
+
 • A blank line (CRLF)
+
 • An optional message body.
+
 The initial line and header lines are each followed by a "carriage-return line-feed (CRLF)" (\r\n) signifying
 the end-of-line.
+
 For most common HTTP transactions, the protocol boils down to a relatively simple series of steps
 (important sections of RFC 1945 are in parenthesis):
+
 1. A client creates a connection to the server.
+
 2. The client issues a request by sending a line of text to the server. This request line consists of a
 HTTP method (most often GET, but POST, PUT, and others are possible in real world), a request
 URI (like a URL), and the protocol version that the client wants to use (HTTP/1.0). The message
 body of the initial request is typically empty. (5.1-5.2, 8.1-8.3, 10, D.1)
+
 3. The server sends a response message, with its initial line consisting of a status line, indicating if
 the request was successful. The status line consists of the HTTP version (HTTP/1.0), a response
 status code (a numerical value that indicates whether or not the request was completed
@@ -34,14 +45,19 @@ status code. Just as with the request message, there can be as many or as few he
 the response as the server wants to return. Following the CRLF field separator, the message
 body contains the data requested by the client in the event of a successful request. (6.1-6.2, 9.1-
 9.5, 10)
+
 4. Once the server has returned the response to the client, it closes the connection. It is fairly easy
 to see this process in action without using a web browser. From a Unix/LINUX prompt, type:
+```
 telnet www.yahoo.com 80
+```
 This opens a TCP connection to the server at www.yahoo.com listening on port 80 ? the default
 HTTP port. You should see something like this:
+
 Trying 209.131.36.158...
 Connected to www.yahoo.com (209.131.36.158).
 Escape character is '^]'.
+
 type the following:
 ```
 GET / HTTP/1.0
@@ -83,7 +99,9 @@ This web proxy can be implemented in either C or C++. The executable is called M
 **Listening**
 When your proxy starts, the first thing that it will need to do is establish a socket that it can use to listen for incoming connections. Your proxy should listen on the port specified from the command line and wait for incoming client connections. Your proxy is a multi-threaded process. After each new client request is accepted, a worker thread handles the request. To avoid overwhelming your proxy, you should not create an excessive number of worker threads (for this project, 30 is a good number). A thread pool and producer/consumer synchronization can be helpful in this project.
 Once a client has connected, the proxy should read data from the client and then check for a properly-formatted HTTP request. Specifically, you will parse the HTTP request to ensure that the proxy receives a request that contains a valid request line:
+
 <METHOD> <URL> <HTTP VERSION>
+  
 In this project, client requests to the proxy must be in their absolute URI form (see RFC 1945, Section 5.1.2), e.g.,
 GET http://www.washington.com/index.html HTTP/1.0
 Web browsers will send absolute URI if properly configured to explicitly use a proxy (as opposed to a transparent on-path proxy). On the other form, your proxy should issue requests to the webserver properly specifying relative URLs, e.g.,
