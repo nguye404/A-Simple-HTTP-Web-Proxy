@@ -3,6 +3,7 @@ This project aims to implement a simple web proxy using HTTP 1.0. It only requir
 method.
 
 **2. Background**
+
 **HTTP**
 The Hypertext Transfer Protocol or (HTTP) is the protocol used for communication on the web. That is, it
 is the protocol which defines how your web browser requests resources from a web server and how the
