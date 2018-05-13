@@ -55,7 +55,9 @@ This opens a TCP connection to the server at www.yahoo.com listening on port 80 
 HTTP port. You should see something like this:
 
 Trying 209.131.36.158...
+
 Connected to www.yahoo.com (209.131.36.158).
+
 Escape character is '^]'.
 
 type the following:
@@ -67,11 +69,17 @@ Connection:close
 and hit enter twice. You should see something like the following:
 
 HTTP/1.0 200 OK
+
 Date: Fri, 10 Nov 2006 20:31:19 GMT
+
 Connection: close
+
 Content-Type: text/html; charset=utf-8
+
 <html><head>
+  
 <title>Yahoo!</title>
+
 (More HTML follows)
   
 There may be some additional pieces of header information as well-setting cookies, instructions to the
@@ -82,6 +90,7 @@ here that the server responds with HTTP 1.1 even though you requested 1.0. Some 
 serve HTTP 1.0 content.
 
 **HTTP Proxy**
+
 Ordinarily, HTTP is a client-server protocol. The client (usually your web browser) communicates directly
 with the server (the web server software). However, in some circumstances it may be useful to introduce
 an intermediate entity called a proxy. Conceptually, the proxy sits between the client and the server. In
@@ -92,16 +101,18 @@ essentially acting like both a HTTP client (to the remote server) and a HTTP ser
 
 
 **3. Assignment**
+
 This project aims to implement a simple web proxy using HTTP 1.0. It only requires implementing GET method. Your task is to build a web proxy capable of accepting HTTP requests, forwarding requests to remote (origin) servers, and returning response data to a client.
 Caching is not required in the proxy!
 This web proxy can be implemented in either C or C++. The executable is called MyProxy that takes as its first argument a port to listen on. Don't use a hard-coded port number.
 
 **Listening**
+
 When your proxy starts, the first thing that it will need to do is establish a socket that it can use to listen for incoming connections. Your proxy should listen on the port specified from the command line and wait for incoming client connections. Your proxy is a multi-threaded process. After each new client request is accepted, a worker thread handles the request. To avoid overwhelming your proxy, you should not create an excessive number of worker threads (for this project, 30 is a good number). A thread pool and producer/consumer synchronization can be helpful in this project.
 Once a client has connected, the proxy should read data from the client and then check for a properly-formatted HTTP request. Specifically, you will parse the HTTP request to ensure that the proxy receives a request that contains a valid request line:
-
+```
 <METHOD> <URL> <HTTP VERSION>
-  
+```
 In this project, client requests to the proxy must be in their absolute URI form (see RFC 1945, Section 5.1.2), e.g.,
 GET http://www.washington.com/index.html HTTP/1.0
 Web browsers will send absolute URI if properly configured to explicitly use a proxy (as opposed to a transparent on-path proxy). On the other form, your proxy should issue requests to the webserver properly specifying relative URLs, e.g.,
@@ -125,10 +136,15 @@ A request from client:
 GET http://www.cnn.com/ HTTP/1.0
 ```
 Send to remote server:
+
 GET / HTTP/1.0
+
 Host: www.cnn.com
+
 Connection: close
+
 (Additional client specified headers, if any...)
+
 Note that we always send HTTP/1.0 flags and a Connection: close header to the server, so that it will close
 the connection after its response is fully transmitted, as opposed to keeping open a persistent connection
 (as we learned in class). So while you should pass the client headers you receive on to the server, you
