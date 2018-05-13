@@ -12,10 +12,10 @@ instructions should be self-contained.
 HTTP communications happen in the form of transactions. A transaction consists of a client sending a
 request to a server and then reading the response. Request and response messages share a common basic
 format:
-• An initial line (a request or response line, as defined below)
-• Zero or more header lines
-• A blank line (CRLF)
-• An optional message body.
+â€¢ An initial line (a request or response line, as defined below)
+â€¢ Zero or more header lines
+â€¢ A blank line (CRLF)
+â€¢ An optional message body.
 The initial line and header lines are each followed by a "carriage-return line-feed (CRLF)" (\r\n) signifying
 the end-of-line.
 For most common HTTP transactions, the protocol boils down to a relatively simple series of steps
@@ -98,7 +98,9 @@ remote port, or the default of 80 if none is specified) and send the HTTP reques
 resource. The proxy should always send the request in the relative URL + Host header format.
 For instance:
 A request from client:
+```
 GET http://www.cnn.com/ HTTP/1.0
+```
 Send to remote server:
 GET / HTTP/1.0
 Host: www.cnn.com
