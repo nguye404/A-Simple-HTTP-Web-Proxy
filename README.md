@@ -42,10 +42,13 @@ Trying 209.131.36.158...
 Connected to www.yahoo.com (209.131.36.158).
 Escape character is '^]'.
 type the following:
+```
 GET / HTTP/1.0
 Hostname:www.yahoo.com
 Connection:close
+```
 and hit enter twice. You should see something like the following:
+
 HTTP/1.0 200 OK
 Date: Fri, 10 Nov 2006 20:31:19 GMT
 Connection: close
@@ -53,6 +56,7 @@ Content-Type: text/html; charset=utf-8
 <html><head>
 <title>Yahoo!</title>
 (More HTML follows)
+  
 There may be some additional pieces of header information as well-setting cookies, instructions to the
 browser or proxy on caching behavior, etc. What you are seeing is exactly what your web browser sees
 when it goes to the Yahoo home page: the HTTP status line, the header fields, and finally the HTTP
