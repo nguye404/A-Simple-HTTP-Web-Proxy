@@ -16,13 +16,13 @@ HTTP communications happen in the form of transactions. A transaction consists o
 request to a server and then reading the response. Request and response messages share a common basic
 format:
 
-• An initial line (a request or response line, as defined below)
+&nbsp;• An initial line (a request or response line, as defined below)
 
-• Zero or more header lines
+&nbsp;• Zero or more header lines
 
-• A blank line (CRLF)
+&nbsp;• A blank line (CRLF)
 
-• An optional message body.
+&nbsp;• An optional message body.
 
 The initial line and header lines are each followed by a "carriage-return line-feed (CRLF)" (\r\n) signifying
 the end-of-line.
