@@ -1,10 +1,10 @@
 # A Simple HTTP Web Proxy
-**1. Overview**
+##1. Overview
 This project aims to implement a simple web proxy using HTTP 1.0. It only requires implementing GET
 method.
 
 
-**2. Background**
+##2. Background
 
 **HTTP**
 
@@ -101,7 +101,7 @@ receives the reply from the server, and then sends that reply back to the client
 essentially acting like both a HTTP client (to the remote server) and a HTTP server (to the initial client).
 
 
-**3. Assignment**
+##3. Assignment
 
 This project aims to implement a simple web proxy using HTTP 1.0. It only requires implementing GET method. Your task is to build a web proxy capable of accepting HTTP requests, forwarding requests to remote (origin) servers, and returning response data to a client.
 Caching is not required in the proxy!
