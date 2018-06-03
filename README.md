@@ -6,6 +6,7 @@ method.
 
 ## 2. Background
 **HTTP**
+
 The Hypertext Transfer Protocol or (HTTP) is the protocol used for communication on the web. That is, it
 is the protocol which defines how your web browser requests resources from a web server and how the
 server responds. For simplicity, in this project we will be dealing only with version 1.0 of the HTTP protocol,
@@ -112,11 +113,13 @@ Connection: close
 An invalid request from the client should be answered with an appropriate error code, i.e. 500 'Internal Error'. Similarly, if headers are not properly formatted for parsing, your proxy should also generate a type of 500 'Internal Error' message.
 
 **Parsing the URL**
+
 Once the proxy receives a valid HTTP request, it will need to parse the requested URL. The proxy needs at least three pieces of information: the requested host, port, and path. You will need to parse the absolute
 URL specified in the given request line. If the hostname indicated in the absolute URL does not have a port
 specified, you should use the default HTTP port 80.
 
 **Getting Data from the Remote Server**
+
 Once the proxy has parsed the URL, it can make a connection to the requested host (using the appropriate
 remote port, or the default of 80 if none is specified) and send the HTTP request for the appropriate
 resource. The proxy should always send the request in the relative URL + Host header format.
@@ -139,6 +142,7 @@ should make sure you replace any Connection header received from the client with
 as shown. To add new headers or modify existing ones, do it when parsing the HTTP request.
 
 **Returning Data to the Client**
+
 After the response from the remote server is received, the proxy should send the response message as-is
 to the client via the appropriate socket. To be strict, the proxy would be required to ensure a Connection:
 close is present in the server's response to let the client decide if it should close its end of the connection
