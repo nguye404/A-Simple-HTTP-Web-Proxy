@@ -16,8 +16,11 @@ request to a server and then reading the response. Request and response messages
 format:
 
 &nbsp;• An initial line (a request or response line, as defined below)
+
 &nbsp;• Zero or more header lines
+
 &nbsp;• A blank line (CRLF)
+
 &nbsp;• An optional message body.
 
 The initial line and header lines are each followed by a "carriage-return line-feed (CRLF)" (\r\n) signifying
