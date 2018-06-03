@@ -4,6 +4,8 @@ This project aims to implement a simple web proxy using HTTP 1.0. It only requir
 method.
 
 
+
+
 ## 2. Background
 **HTTP**
 
@@ -81,6 +83,7 @@ message body ? consisting of the HTML that your browser interprets to create a w
 here that the server responds with HTTP 1.1 even though you requested 1.0. Some web servers refuse to
 serve HTTP 1.0 content.
 
+
 **HTTP Proxy**
 
 Ordinarily, HTTP is a client-server protocol. The client (usually your web browser) communicates directly
@@ -92,10 +95,13 @@ receives the reply from the server, and then sends that reply back to the client
 essentially acting like both a HTTP client (to the remote server) and a HTTP server (to the initial client).
 
 
+
+
 ## 3. Assignment
 This project aims to implement a simple web proxy using HTTP 1.0. It only requires implementing GET method. Your task is to build a web proxy capable of accepting HTTP requests, forwarding requests to remote (origin) servers, and returning response data to a client.
 Caching is not required in the proxy!
 This web proxy can be implemented in either C or C++. The executable is called MyProxy that takes as its first argument a port to listen on. Don't use a hard-coded port number.
+
 
 **Listening**
 
@@ -112,11 +118,13 @@ Host: www.seattleu.edu
 Connection: close
 An invalid request from the client should be answered with an appropriate error code, i.e. 500 'Internal Error'. Similarly, if headers are not properly formatted for parsing, your proxy should also generate a type of 500 'Internal Error' message.
 
+
 **Parsing the URL**
 
 Once the proxy receives a valid HTTP request, it will need to parse the requested URL. The proxy needs at least three pieces of information: the requested host, port, and path. You will need to parse the absolute
 URL specified in the given request line. If the hostname indicated in the absolute URL does not have a port
 specified, you should use the default HTTP port 80.
+
 
 **Getting Data from the Remote Server**
 
@@ -140,6 +148,7 @@ the connection after its response is fully transmitted, as opposed to keeping op
 (as we learned in class). So while you should pass the client headers you receive on to the server, you
 should make sure you replace any Connection header received from the client with one specifying close,
 as shown. To add new headers or modify existing ones, do it when parsing the HTTP request.
+
 
 **Returning Data to the Client**
 
