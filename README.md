@@ -6,7 +6,6 @@ method.
 
 ## 2. Background
 **HTTP**
-
 The Hypertext Transfer Protocol or (HTTP) is the protocol used for communication on the web. That is, it
 is the protocol which defines how your web browser requests resources from a web server and how the
 server responds. For simplicity, in this project we will be dealing only with version 1.0 of the HTTP protocol,
@@ -53,13 +52,13 @@ telnet www.yahoo.com 80
 ```
 This opens a TCP connection to the server at www.yahoo.com listening on port 80 ? the default
 HTTP port. You should see something like this:
-
+```
 Trying 209.131.36.158...
 
 Connected to www.yahoo.com (209.131.36.158).
 
 Escape character is '^]'.
-
+```
 type the following:
 ```
 GET / HTTP/1.0
@@ -67,7 +66,7 @@ Hostname:www.yahoo.com
 Connection:close
 ```
 and hit enter twice. You should see something like the following:
-
+```
 HTTP/1.0 200 OK
 
 Date: Fri, 10 Nov 2006 20:31:19 GMT
@@ -81,7 +80,7 @@ Content-Type: text/html; charset=utf-8
 <title>Yahoo!</title>
 
 (More HTML follows)
-  
+ ```
 There may be some additional pieces of header information as well-setting cookies, instructions to the
 browser or proxy on caching behavior, etc. What you are seeing is exactly what your web browser sees
 when it goes to the Yahoo home page: the HTTP status line, the header fields, and finally the HTTP
@@ -101,7 +100,6 @@ essentially acting like both a HTTP client (to the remote server) and a HTTP ser
 
 
 ## 3. Assignment
-
 This project aims to implement a simple web proxy using HTTP 1.0. It only requires implementing GET method. Your task is to build a web proxy capable of accepting HTTP requests, forwarding requests to remote (origin) servers, and returning response data to a client.
 Caching is not required in the proxy!
 This web proxy can be implemented in either C or C++. The executable is called MyProxy that takes as its first argument a port to listen on. Don't use a hard-coded port number.
@@ -136,7 +134,7 @@ A request from client:
 GET http://www.cnn.com/ HTTP/1.0
 ```
 Send to remote server:
-
+```
 GET / HTTP/1.0
 
 Host: www.cnn.com
@@ -144,7 +142,7 @@ Host: www.cnn.com
 Connection: close
 
 (Additional client specified headers, if any...)
-
+```
 Note that we always send HTTP/1.0 flags and a Connection: close header to the server, so that it will close
 the connection after its response is fully transmitted, as opposed to keeping open a persistent connection
 (as we learned in class). So while you should pass the client headers you receive on to the server, you
