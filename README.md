@@ -16,11 +16,8 @@ request to a server and then reading the response. Request and response messages
 format:
 
 &nbsp;• An initial line (a request or response line, as defined below)
-
 &nbsp;• Zero or more header lines
-
 &nbsp;• A blank line (CRLF)
-
 &nbsp;• An optional message body.
 
 The initial line and header lines are each followed by a "carriage-return line-feed (CRLF)" (\r\n) signifying
@@ -54,9 +51,7 @@ This opens a TCP connection to the server at www.yahoo.com listening on port 80 
 HTTP port. You should see something like this:
 ```
 Trying 209.131.36.158...
-
 Connected to www.yahoo.com (209.131.36.158).
-
 Escape character is '^]'.
 ```
 type the following:
@@ -68,17 +63,11 @@ Connection:close
 and hit enter twice. You should see something like the following:
 ```
 HTTP/1.0 200 OK
-
 Date: Fri, 10 Nov 2006 20:31:19 GMT
-
 Connection: close
-
 Content-Type: text/html; charset=utf-8
-
 <html><head>
-  
 <title>Yahoo!</title>
-
 (More HTML follows)
  ```
 There may be some additional pieces of header information as well-setting cookies, instructions to the
@@ -136,11 +125,8 @@ GET http://www.cnn.com/ HTTP/1.0
 Send to remote server:
 ```
 GET / HTTP/1.0
-
 Host: www.cnn.com
-
 Connection: close
-
 (Additional client specified headers, if any...)
 ```
 Note that we always send HTTP/1.0 flags and a Connection: close header to the server, so that it will close
