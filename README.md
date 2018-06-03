@@ -1,3 +1,4 @@
+# A Simple HTTP Web Proxy
 **1. Overview**
 This project aims to implement a simple web proxy using HTTP 1.0. It only requires implementing GET
 method.
